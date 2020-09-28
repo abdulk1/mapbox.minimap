@@ -74,7 +74,7 @@ class Minimap extends mapboxgl.NavigationControl {
     this.minimized = false;
 
     this.options = {
-      id: 'mapboxgl-minimap',
+      id: 'mapbox-minimap',
       width: 320,
       height: 180,
       style: 'mapbox://styles/mapbox/streets-v8',
@@ -181,7 +181,7 @@ class Minimap extends mapboxgl.NavigationControl {
       ? this.createButton(
           '',
           this.toggleButtonInitialTitleText(),
-          'mapbox-ctrl-minimap-toggle-display mapbox-ctrl-minimap-toggle-display-' + this.options.togglePosition,
+          'minimap mapbox-ctrl-minimap-toggle-display mapbox-ctrl-minimap-toggle-display-' + this.options.togglePosition,
           this.container,
           this.toggle,
           this

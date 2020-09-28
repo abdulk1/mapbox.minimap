@@ -1,6 +1,6 @@
 {
   "name": "mapbox.minimap",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A plugin for Mapbox that provides a minimap in the corner of the map view.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -10,6 +10,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/abdulk1/mapbox.minimap"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   },
   "scripts": {
     "build": "tsc --declaration true --declarationDir dist && rollup -c rollup.config.js",

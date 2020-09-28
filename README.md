@@ -22,7 +22,7 @@ map.addControl(minimap, 'bottom-right');
 
 ```javascript
 {
-    id: 'mapboxgl-minimap',
+    id: 'mapbox-minimap',
     width: 320,
     height: 180,
     style: 'mapbox://styles/mapbox/streets-v8',

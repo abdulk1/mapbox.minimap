@@ -1,0 +1,31 @@
+export interface MiniMapOptions {
+    id: string;
+    width: number;
+    height: number;
+    style: string;
+    center: number[];
+    zoom: number;
+    bounds?: any;
+    maxBounds?: any;
+    zoomAdjust: any;
+    zoomLevels: number[][];
+    lineColor: string;
+    lineWidth: number;
+    lineOpacity: number;
+    fillColor: string;
+    fillOpacity: number;
+    dragPan: boolean;
+    scrollZoom: boolean;
+    boxZoom: boolean;
+    dragRotate: boolean;
+    keyboard: boolean;
+    doubleClickZoom: boolean;
+    touchZoomRotate: boolean;
+    minimized: boolean;
+    toggleDisplay: boolean;
+    togglePosition: string;
+    collapsedWidth: number;
+    collapsedHeight: number;
+    showText: string;
+    hideText: string;
+}

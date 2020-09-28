@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Mapbox GL Minimap</title>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css">
+    <link rel="stylesheet" href="dist/styles.css">
+</head>
+
+<body>
+
+    <div id="map" style="width: 1250px; height: 650px;"></div>
+    <script type="text/javascript" src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
+    <script type="module" type="text/javascript" src="dist/index.js"></script>
+
+    <script type="text/javascript">
+
+        mapboxgl.accessToken = "pk.eyJ1IjoiYWJkdWxrMCIsImEiOiJjamx3YTd5MzAwZnpyM3BwZ2VlbzBzajNxIn0.sfaVEVrneShyyvSb6ddg2g";
+
+        var map = new mapboxgl.Map({
+            container: "map",
+            style: "mapbox://styles/mapbox/streets-v8",
+            center: [-73.94656812952897, 40.72912351406106],
+            zoom: 10
+        });
+
+        var minimap;
+
+        map.on("load", function () {
+            minimap = new mapboxgl.Minimap({
+                center: [-73.94656812952897, 40.72912351406106],
+                zoom: 6,
+                zoomLevels: [],
+                togglePosition: 'topleft'
+            });
+
+            map.addControl(minimap, 'bottom-right');
+        });
+
+        function remove() {
+            minimap.remove();
+        }
+
+        function toggle() {
+            minimap.toggle();
+        }
+
+        function change() {
+            minimap.changeLayer('mapbox://styles/mapbox/dark-v8');
+        }
+
+    </script>
+
+</body>
+
+</html>

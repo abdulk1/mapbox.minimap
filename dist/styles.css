@@ -14,25 +14,21 @@
 }
 
 .mapbox-ctrl-minimap a.minimap.minimized-bottomright {
-  -webkit-transform: rotate(0deg);
   transform: rotate(0deg);
   border-radius: 0px;
 }
 
 .mapbox-ctrl-minimap a.minimap.minimized-topleft {
-  -webkit-transform: rotate(180deg);
   transform: rotate(180deg);
   border-radius: 0px;
 }
 
 .mapbox-ctrl-minimap a.minimap.minimized-bottomleft {
-  -webkit-transform: rotate(90deg);
   transform: rotate(90deg);
   border-radius: 0px;
 }
 
 .mapbox-ctrl-minimap a.minimap.minimized-topright {
-  -webkit-transform: rotate(270deg);
   transform: rotate(270deg);
   border-radius: 0px;
 }
@@ -41,33 +37,28 @@
   background-image: url('images/toggle.svg');
   background-size: cover;
   position: absolute;
-  border-radius: 3px 0px 0px 0px;
 }
 
 .mapbox-ctrl-minimap-toggle-display-bottomright {
   bottom: 0;
   right: 0;
-  -webkit-transform: rotate(180deg);
   transform: rotate(180deg);
 }
 
 .mapbox-ctrl-minimap-toggle-display-topleft {
   top: 0;
   left: 0;
-  -webkit-transform: rotate(0deg);
   transform: rotate(0deg);
 }
 
 .mapbox-ctrl-minimap-toggle-display-bottomleft {
   bottom: 0;
   left: 0;
-  -webkit-transform: rotate(270deg);
   transform: rotate(270deg);
 }
 
 .mapbox-ctrl-minimap-toggle-display-topright {
   top: 0;
   right: 0;
-  -webkit-transform: rotate(90deg);
   transform: rotate(90deg);
 }

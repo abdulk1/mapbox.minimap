@@ -5,31 +5,30 @@ export interface MiniMapOptions {
   width: number;
   height: number;
   style: string;
-  center: number[];
-  zoom: number;
+  center?: number[];
   bounds?: any;
   maxBounds?: any;
-  zoomAdjust: any;
-  zoomLevels: number[][];
-  lineColor: string;
-  lineWidth: number;
-  lineOpacity: number;
-  fillColor: string;
-  fillOpacity: number;
-  dragPan: boolean;
-  scrollZoom: boolean;
-  boxZoom: boolean;
-  dragRotate: boolean;
-  keyboard: boolean;
-  doubleClickZoom: boolean;
-  touchZoomRotate: boolean;
-  minimized: boolean;
-  toggleDisplay: boolean;
-  togglePosition: string;
-  collapsedWidth: number;
-  collapsedHeight: number;
-  showText: string;
-  hideText: string;
+  zoomLevelFixed?: boolean;
+  zoomLevelOffset?: number;
+  lineColor?: string;
+  lineWidth?: number;
+  lineOpacity?: number;
+  fillColor?: string;
+  fillOpacity?: number;
+  dragPan?: boolean;
+  scrollZoom?: boolean;
+  boxZoom?: boolean;
+  dragRotate?: boolean;
+  keyboard?: boolean;
+  doubleClickZoom?: boolean;
+  touchZoomRotate?: boolean;
+  minimized?: boolean;
+  toggleDisplay?: boolean;
+  togglePosition?: 'bottomleft' | 'bottomright' | 'topleft' | 'topright';
+  collapsedWidth?: number;
+  collapsedHeight?: number;
+  showText?: string;
+  hideText?: string;
 }
 
 class Minimap extends mapboxgl.NavigationControl {
@@ -40,8 +39,6 @@ class Minimap extends mapboxgl.NavigationControl {
   private miniMapCanvas: HTMLElement;
   private container: HTMLDivElement;
 
-  private ticking: boolean;
-  private lastMouseMoveEvent = null;
   private isDragging: boolean;
   private isCursorOverFeature: boolean;
   private previousPoint: number[];
@@ -54,15 +51,16 @@ class Minimap extends mapboxgl.NavigationControl {
 
   private onToggleButtonClick;
   private onLoad;
-  private onMove;
+
+  private onMainMapMove;
+  private onMainMapMoveEnd;
+
   private onMouseMove;
   private onMouseDown;
   private onMouseUp;
 
   constructor(private config?: MiniMapOptions) {
     super();
-    this.ticking = false;
-    this.lastMouseMoveEvent = null;
     this.parentMap = null;
     this.miniMap = null;
     this.isDragging = false;
@@ -79,25 +77,15 @@ class Minimap extends mapboxgl.NavigationControl {
       height: 180,
       style: 'mapbox://styles/mapbox/streets-v8',
       center: [0, 0],
-      zoom: 6,
 
-      // should be a function; will be bound to Minimap
-      zoomAdjust: null,
+      zoomLevelFixed: false,
+      zoomLevelOffset: -4,
 
-      // if parent map zoom >= 18 and minimap zoom >= 14, set minimap zoom to 16
-      zoomLevels: [
-        [18, 14, 16],
-        [16, 12, 14],
-        [14, 10, 12],
-        [12, 8, 10],
-        [10, 6, 8]
-      ],
-
-      lineColor: '#08F',
+      lineColor: '#08f',
       lineWidth: 1,
       lineOpacity: 1,
 
-      fillColor: '#F80',
+      fillColor: '#f80',
       fillOpacity: 0.25,
 
       dragPan: false,
@@ -131,9 +119,10 @@ class Minimap extends mapboxgl.NavigationControl {
       attributionControl: false,
       container: container,
       style: opts.style,
-      zoom: opts.zoom,
       center: opts.center
     }));
+
+    this.adjustZoom();
 
     if (opts.maxBounds) {
       miniMap.setMaxBounds(opts.maxBounds);
@@ -150,7 +139,8 @@ class Minimap extends mapboxgl.NavigationControl {
   }
 
   private onRemove() {
-    this.parentMap.off('move', this.onMove);
+    this.parentMap.off('move', this.onMainMapMove);
+    this.parentMap.off('move', this.onMainMapMoveEnd);
 
     this.miniMap.off('load', this.onLoad);
 
@@ -275,20 +265,17 @@ class Minimap extends mapboxgl.NavigationControl {
       }
     });
 
-    if (typeof opts.zoomAdjust === 'function') {
-      this.options.zoomAdjust = opts.zoomAdjust.bind(this);
-    } else if (opts.zoomAdjust === null) {
-      this.options.zoomAdjust = this.zoomAdjust.bind(this);
-    }
-
     this.addRect(miniMap, opts);
 
-    this.onMove = this.update.bind(this);
+    this.onMainMapMove = this.update.bind(this); // parent map move
+    this.onMainMapMoveEnd = this.parentMapMoved.bind(this); // parent map move end
+
     this.onMouseMove = this.mouseMove.bind(this);
     this.onMouseDown = this.mouseDown.bind(this);
     this.onMouseUp = this.mouseUp.bind(this);
 
-    parentMap.on('move', this.onMove);
+    parentMap.on('move', this.onMainMapMove);
+    parentMap.on('moveend', this.onMainMapMoveEnd);
 
     miniMap.on('mousemove', this.onMouseMove);
     miniMap.on('mousedown', this.onMouseDown);
@@ -368,8 +355,6 @@ class Minimap extends mapboxgl.NavigationControl {
   }
 
   private mouseMove(e): void {
-    this.ticking = false;
-
     const miniMap = this.miniMap;
     const features = miniMap.queryRenderedFeatures(e.point, {
       layers: ['trackingRectFill']
@@ -397,7 +382,6 @@ class Minimap extends mapboxgl.NavigationControl {
 
   private mouseUp(): void {
     this.isDragging = false;
-    this.ticking = false;
   }
 
   private moveTrackingRect(offset: number[]) {
@@ -416,7 +400,8 @@ class Minimap extends mapboxgl.NavigationControl {
     return bounds;
   }
 
-  private setTrackingRectBounds(bounds) {
+  private setTrackingRectBounds() {
+    const bounds = this.parentMap.getBounds();
     const source = this.trackingRect;
     const data = source._data;
 
@@ -447,41 +432,22 @@ class Minimap extends mapboxgl.NavigationControl {
       return;
     }
 
-    const parentBounds = this.parentMap.getBounds();
+    if (!this.options.zoomLevelFixed) {
+      this.adjustZoom();
+    }
 
-    this.setTrackingRectBounds(parentBounds);
+    this.setTrackingRectBounds();
+  }
 
-    if (typeof this.options.zoomAdjust === 'function') {
-      this.options.zoomAdjust();
+  private parentMapMoved(): void {
+    this.miniMap.setCenter(this.parentMap.getCenter());
+    if (!this.options.zoomLevelFixed) {
+      this.adjustZoom();
     }
   }
 
-  private zoomAdjust(): void {
-    const miniMap = this.miniMap;
-    const parentMap = this.parentMap;
-    const miniZoom = miniMap.getZoom();
-    const parentZoom = parentMap.getZoom();
-    const levels = this.options.zoomLevels;
-    let found = false;
-
-    levels.forEach(function (zoom) {
-      if (!found && parentZoom >= zoom[0]) {
-        if (miniZoom >= zoom[1]) {
-          miniMap.setZoom(zoom[2]);
-        }
-
-        miniMap.setCenter(parentMap.getCenter());
-        found = true;
-      }
-    });
-
-    if (!found && miniZoom !== this.options.zoom) {
-      if (typeof this.options.bounds === 'object') {
-        miniMap.fitBounds(this.options.bounds, { duration: 50 });
-      }
-
-      miniMap.setZoom(this.options.zoom);
-    }
+  private adjustZoom(): void {
+    this.miniMap.setZoom(this.parentMap.getZoom() + this.options.zoomLevelOffset);
   }
 
   private createContainer(parentMap: mapboxgl.Map): HTMLDivElement {

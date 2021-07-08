@@ -2,7 +2,7 @@
 
 mapbox.minimap is a simple minimap control that you can drop into your mapbox map, and it will create a small map in the corner which shows the same as the main map with a set zoom offset.
 
-[![npm version](https://badge.fury.io/js/mapbminimap.svg)](https://www.npmjs.com/package/mapbox.minimap)
+[![npm version](https://badge.fury.io/js/mapbox.minimap.svg)](https://www.npmjs.com/package/mapbox.minimap)
 
 ## Using the MiniMap control
 
@@ -27,25 +27,15 @@ map.addControl(minimap, 'bottom-right');
     height: 180,
     style: 'mapbox://styles/mapbox/streets-v8',
     center: [0, 0],
-    zoom: 6,
 
-    // should be a function; will be bound to Minimap
-    zoomAdjust: null,
+    zoomLevelFixed: false,
+    zoomLevelOffset: -4,
 
-    // if parent map zoom >= 18 and minimap zoom >= 14, set minimap zoom to 16
-    zoomLevels: [
-    [18, 14, 16],
-    [16, 12, 14],
-    [14, 10, 12],
-    [12, 8, 10],
-    [10, 6, 8]
-    ],
-
-    lineColor: '#08F',
+    lineColor: '#08f',
     lineWidth: 1,
     lineOpacity: 1,
 
-    fillColor: '#F80',
+    fillColor: '#f80',
     fillOpacity: 0.25,
 
     dragPan: false,
@@ -67,7 +57,7 @@ map.addControl(minimap, 'bottom-right');
 
 ## Available Methods
 
-`toggle`: Toggles the minimap open/closed
+`toggle`: Toggles the minimap open/close
 
 `changeLayer`: Swaps out the minimap layer for the one provided
 

@@ -140,7 +140,7 @@ class Minimap extends mapboxgl.NavigationControl {
 
   private onRemove() {
     this.parentMap.off('move', this.onMainMapMove);
-    this.parentMap.off('move', this.onMainMapMoveEnd);
+    this.parentMap.off('moveend', this.onMainMapMoveEnd);
 
     this.miniMap.off('load', this.onLoad);
 
